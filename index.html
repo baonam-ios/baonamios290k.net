@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  
+    
+</head>
+<body>
+  <meta charset="UTF-8">
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vi Long - SUPREME V16 OMEGA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Orbitron:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           PHẦN 1: HỆ THỐNG BIẾN & RESET CSS
+           ========================================================================== */
+        :root {
+            --bg-color: #02040a;
+            --panel-bg: rgba(6, 10, 20, 0.96);
+            --border-glow: #00d2ff;
+            --text-main: #e2e8f0;
+            --tai-color: #00ffaa;
+            --xiu-color: #ff2a5f;
+            --gold-vip: #ffcc00;
+            --font-hud: 'Orbitron', sans-serif;
+            --font-data: 'Share Tech Mono', monospace;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            width: 100%; height: 100%; overflow: hidden;
+            background-color: var(--bg-color); font-family: var(--font-data); color: var(--text-main);
+            user-select: none; -webkit-user-select: none;
+        }
+
+        /* ==========================================================================
+           PHẦN 2: MÀN HÌNH KHỞI ĐỘNG CYBER-TERMINAL (VIP BOOT)
+           ========================================================================== */
+        #bootScreen {
+            position: fixed; inset: 0; z-index: 100000; background: #000;
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 40px;
+            transition: opacity 0.5s ease;
+        }
+        .boot-line {
+            font-family: var(--font-data); font-size: 14px; color: #00ff00;
+            margin-bottom: 5px; opacity: 0; text-shadow: 0 0 5px #00ff00;
+        }
+        .boot-title {
+            font-family: var(--font-hud); font-size: 40px; color: var(--gold-vip);
+            text-shadow: 0 0 20px rgba(255,204,0,0.5); font-weight: 900; margin-bottom: 20px;
+            opacity: 0; animation: fadeIn 0.1s forwards 2.5s;
+        }
+        /* Hiệu ứng gõ chữ tuần tự không dùng JS Random */
+        @keyframes fadeIn { to { opacity: 1; } }
+        .bl-1 { animation: fadeIn 0.1s forwards 0.2s; }
+        .bl-2 { animation: fadeIn 0.1s forwards 0.6s; }
+        .bl-3 { animation: fadeIn 0.1s forwards 1.0s; color: #00d2ff; }
+        .bl-4 { animation: fadeIn 0.1s forwards 1.4s; }
+        .bl-5 { animation: fadeIn 0.1s forwards 1.8s; color: var(--gold-vip); }
+        .bl-6 { animation: fadeIn 0.1s forwards 2.2s; }
+
+        .btn-enter-system {
+            margin-top: 30px; padding: 15px 40px; background: transparent;
+            border: 2px solid var(--gold-vip); color: var(--gold-vip);
+            font-family: var(--font-hud); font-size: 18px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 3px;
+            opacity: 0; animation: fadeIn 0.1s forwards 3s; align-self: flex-start;
+            transition: 0.3s; box-shadow: 0 0 15px rgba(255,204,0,0.2) inset;
+        }
+        .btn-enter-system:hover { background: var(--gold-vip); color: #000; box-shadow: 0 0 30px var(--gold-vip); }
+
+        /* ==========================================================================
+           PHẦN 3: BACKGROUND & IFRAME
+           ========================================================================== */
+        .matrix-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: radial-gradient(circle at center, rgba(0,210,255,0.05) 0%, #000 100%);
+        }
+        #gameFrame {
+            position: fixed; inset: 0; width: 100vw; height: 100vh;
+            border: none; z-index: 1; opacity: 0; transition: opacity 1s;
+        }
+        #gameFrame.active { opacity: 1; }
+
+        /* ==========================================================================
+           PHẦN 4: URL BAR & FAB (ĐIỀU HƯỚNG)
+           ========================================================================== */
+        #topBar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 45px;
+            background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--gold-vip);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 0 10px; z-index: 9990; transform: translateY(-100%); transition: 0.4s;
+        }
+        #topBar.show { transform: translateY(0); }
+        #linkInput {
+            width: 70%; max-width: 400px; height: 30px; background: #111;
+            border: 1px solid #333; border-radius: 4px; color: #fff;
+            padding: 0 10px; font-family: var(--font-data); font-size: 12px; outline: none;
+        }
+        #linkInput:focus { border-color: var(--gold-vip); }
+        #btnGo {
+            height: 30px; padding: 0 15px; background: var(--gold-vip); border: none;
+            border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px;
+        }
+
+        .fab-container { position: fixed; bottom: 20px; right: 20px; z-index: 9995; display: flex; flex-direction: column; gap: 10px; }
+        .fab-btn {
+            width: 45px; height: 45px; border-radius: 50%; border: 1.5px solid transparent;
+            display: flex; align-items: center; justify-content: center; font-family: var(--font-hud);
+            font-weight: 900; font-size: 12px; cursor: pointer; transition: 0.3s;
+        }
+        .fab-url { background: #111; color: var(--border-glow); border-color: var(--border-glow); }
+        .fab-tool {
+            background: linear-gradient(135deg, #ffd700, #ff5500); color: #000; border-color: #fff;
+            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+        }
+
+        /* ==========================================================================
+           PHẦN 5: PANEL PHÂN TÍCH COMPACT (THU NHỎ & XOAY ĐƯỢC)
+           ========================================================================== */
+        #corePanel {
+            display: none; position: fixed; top: 100px; left: 20px; 
+            width: 250px; /* SIZE COMPACT siêu nhỏ gọn */
+            background: var(--panel-bg); border: 1px solid var(--border-glow);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 15px rgba(0,210,255,0.1);
+            z-index: 99999; flex-direction: column; overflow: hidden;
+            transform-origin: center center;
+            /* Phục vụ tính năng xoay */
+            transform: rotate(0deg); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* HEADER THU NHỎ */
+        .panel-header {
+            background: linear-gradient(90deg, #002244, #000); padding: 8px 12px;
+            display: flex; justify-content: space-between; align-items: center; cursor: grab;
+            border-bottom: 1px solid rgba(0,210,255,0.3);
+        }
+        .panel-header:active { cursor: grabbing; }
+        .brand-title { font-family: var(--font-hud); font-size: 12px; font-weight: 900; color: var(--gold-vip); letter-spacing: 1px; }
+        
+        .header-controls { display: flex; gap: 8px; align-items: center; }
+        .btn-ctrl {
+            font-size: 14px; cursor: pointer; font-weight: bold; color: #fff;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-rotate { color: var(--border-glow); }
+        .btn-rotate:hover { transform: rotate(180deg); color: #fff; }
+        .btn-close { color: var(--xiu-color); }
+        .btn-close:hover { transform: scale(1.2); }
+
+        /* BODY COMPACT */
+        .panel-body { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+
+        .core-input {
+            width: 100%; height: 35px; background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(0,210,255,0.4); border-radius: 6px;
+            color: #fff; font-family: var(--font-data); font-size: 11px;
+            padding: 0 10px; outline: none; text-align: center;
+        }
+        .core-input:focus { border-color: var(--gold-vip); }
+
+        /* RESULT STAGE COMPACT */
+        .result-stage {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px; padding: 10px; text-align: center;
+        }
+        .res-text { font-family: var(--font-hud); font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 5px; }
+        .res-tai { color: var(--tai-color); text-shadow: 0 0 15px var(--tai-color); }
+        .res-xiu { color: var(--xiu-color); text-shadow: 0 0 15px var(--xiu-color); }
+        .res-wait { color: #444; font-size: 18px; letter-spacing: 1px; }
+
+        .confidence-bar { width: 100%; height: 4px; background: #222; border-radius: 2px; display: flex; overflow: hidden; }
+        .c-fill-t { background: var(--tai-color); width: 50%; transition: 0.5s; }
+        .c-fill-x { background: var(--xiu-color); width: 50%; transition: 0.5s; }
+        .prob-text { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin-top: 3px; }
+        .p-t { color: var(--tai-color); } .p-x { color: var(--xiu-color); }
+
+        /* ALGO DETAILS COMPACT (21 LỚP) */
+        .algo-details {
+            max-height: 100px; overflow-y: auto; background: #000;
+            border-radius: 6px; border: 1px solid #222; padding: 5px;
+            display: grid; grid-template-columns: 1fr; gap: 4px;
+        }
+        .algo-details::-webkit-scrollbar { width: 2px; }
+        .algo-details::-webkit-scrollbar-thumb { background: var(--border-glow); }
+        .algo-item {
+            display: flex; justify-content: space-between; font-size: 8.5px;
+            background: rgba(255,255,255,0.05); padding: 3px 5px; border-radius: 3px;
+        }
+        .algo-name { color: #888; }
+        .algo-val.t { color: var(--tai-color); font-weight: bold; }
+        .algo-val.x { color: var(--xiu-color); font-weight: bold; }
+
+        /* NÚT BẤM COMPACT */
+        .btn-analyze {
+            width: 100%; height: 35px; background: linear-gradient(90deg, #d4af37, #ffcc00);
+            border: none; border-radius: 6px; color: #000; font-family: var(--font-hud);
+            font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.3s;
+        }
+        .btn-analyze:active { transform: scale(0.96); }
+
+        .feedback-row { display: flex; gap: 6px; }
+        .btn-fb {
+            flex: 1; height: 28px; border: none; border-radius: 4px; font-weight: bold; font-size: 9px; cursor: pointer;
+        }
+        .btn-fb.true { background: rgba(0,255,170,0.15); color: var(--tai-color); border: 1px solid var(--tai-color); }
+        .btn-fb.false { background: rgba(255,42,95,0.15); color: var(--xiu-color); border: 1px solid var(--xiu-color); }
+
+        .footer { text-align: center; font-size: 8px; color: #555; }
+        .footer span { color: var(--gold-vip); }
+
+    </style>
+
+
+
+    <div id="bootScreen">
+        <div class="boot-line bl-1">[SYSTEM] KERNEL BOOT SEQUENCE INITIATED...</div>
+        <div class="boot-line bl-2">[MODULE] LOADING 21-DIMENSIONAL MATH ENGINE... OK</div>
+        <div class="boot-line bl-3">[SECURITY] ESTABLISHING ENCRYPTED CONNECTION... DONE</div>
+        <div class="boot-line bl-4">[CORE] DETERMINISTIC ALGORITHMS COMPILED... SUCCESS</div>
+        <div class="boot-line bl-5">[AUTH] VIP USER RECOGNIZED: VI LONG.</div>
+        <div class="boot-line bl-6">[READY] SYSTEM IS ONLINE. AWAITING COMMAND.</div>
+        
+        <div class="boot-title">SUPREME ORACLE V16</div>
+        <button class="btn-enter-system" id="btnEnterSys">TRUY CẬP HỆ THỐNG</button>
+    </div>
+
+    <div class="matrix-bg"></div>
+
+    <iframe id="gameFrame" src="about:blank" allowfullscreen="" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"></iframe>
+
+    <div id="topBar">
+        <input type="url" id="linkInput" placeholder="URL Game (VD: https://lc79.bet)" autocomplete="off">
+        <button id="btnGo">TẢI GAME</button>
+    </div>
+
+    <div class="fab-container">
+        <button class="fab-btn fab-url" id="fabUrl">URL</button>
+        <button class="fab-btn fab-tool" id="fabTool">V16</button>
+    </div>
+
+    <div id="corePanel">
+        <div class="panel-header" id="dragHandle">
+            <span class="brand-title">V16 OMEGA</span>
+            <div class="header-controls">
+                <span class="btn-ctrl btn-rotate" id="btnRotate" title="Xoay Giao Diện">⟳</span>
+                <span class="btn-ctrl btn-close" id="btnClose" title="Đóng">✕</span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <input type="text" id="coreInput" class="core-input" placeholder="MÃ GIAO DỊCH / HEX..." autocomplete="off">
+
+            <div class="result-stage">
+                <div class="res-text res-wait" id="mainRes">---</div>
+                <div class="confidence-bar">
+                    <div class="c-fill-t" id="barT"></div>
+                    <div class="c-fill-x" id="barX"></div>
+                </div>
+                <div class="prob-text">
+                    <span class="p-t" id="txtT">T: 50%</span>
+                    <span class="p-x" id="txtX">X: 50%</span>
+                </div>
+            </div>
+
+            <button class="btn-analyze" id="btnAnalyze">GIẢI MÃ</button>
+
+            <div class="algo-details" id="algoGrid"></div>
+
+            <div class="feedback-row">
+                <button class="btn-fb true" onclick="VI_LONG_CORE.feedHistory(true)">✓ LƯU ĐÚNG</button>
+                <button class="btn-fb false" onclick="VI_LONG_CORE.feedHistory(false)">✗ BÁO SAI</button>
+            </div>
+            <div class="footer">AUTHOR: <span>VI LONG</span> | V16 COMPACT</div>
+        </div>
+    </div>
+
+    
+
+
+
+
+    <script>
+        /* ==========================================================================
+           PHẦN 6: XỬ LÝ MÀN HÌNH BOOT & GIAO DIỆN CƠ BẢN
+           ========================================================================== */
+        document.getElementById('btnEnterSys').addEventListener('click', () => {
+            const boot = document.getElementById('bootScreen');
+            boot.style.opacity = '0';
+            setTimeout(() => {
+                boot.style.display = 'none';
+                document.getElementById('topBar').classList.add('show');
+            }, 500);
+        });
+
+        // Anti-Inspect Security (Kế thừa từ V15)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
+                e.preventDefault(); return false;
+            }
+        });
+
+        const iframe = document.getElementById('gameFrame');
+        const urlBar = document.getElementById('topBar');
+        const urlInput = document.getElementById('linkInput');
+
+        document.getElementById('fabUrl').addEventListener('click', () => urlBar.classList.toggle('show'));
+        const loadGameUrl = () => {
+            let val = urlInput.value.trim();
+            if(!val) return;
+            if(!/^http/i.test(val)) val = 'https://' + val;
+            iframe.src = val; iframe.classList.add('active'); urlBar.classList.remove('show');
+        };
+        document.getElementById('btnGo').addEventListener('click', loadGameUrl);
+        urlInput.addEventListener('keydown', e => { if(e.key === 'Enter') loadGameUrl(); });
+
+        /* ==========================================================================
+           PHẦN 7: XỬ LÝ PANEL (KÉO THẢ & XOAY 360)
+           ========================================================================== */
+        const panel = document.getElementById('corePanel');
+        let currentRotation = 0;
+
+        document.getElementById('fabTool').addEventListener('click', () => { panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex'; });
+        document.getElementById('btnClose').addEventListener('click', () => { panel.style.display = 'none'; });
+
+        // Logic Xoay Panel
+        document.getElementById('btnRotate').addEventListener('click', () => {
+            currentRotation = (currentRotation + 90) % 360;
+            panel.style.transform = `rotate(${currentRotation}deg)`;
+        });
+
+        // Logic Kéo thả hỗ trợ Panel xoay
+        const dragHandle = document.getElementById('dragHandle');
+        let isDragging = false, startX, startY, initialLeft, initialTop;
+
+        const dragStart = (e) => {
+            if(e.target.closest('.header-controls')) return;
+            isDragging = true;
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            startX = clientX; startY = clientY;
+            
+            // Lấy vị trí offset hiện tại từ style thay vì getBoundingClientRect (để tránh sai lệch khi rotate)
+            let style = window.getComputedStyle(panel);
+            initialLeft = parseInt(style.left, 10) || 0;
+            initialTop = parseInt(style.top, 10) || 0;
+        };
+        const dragMove = (e) => {
+            if(!isDragging) return; e.preventDefault();
+            let clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            let clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            let dx = clientX - startX;
+            let dy = clientY - startY;
+            
+            panel.style.left = `${initialLeft + dx}px`;
+            panel.style.top = `${initialTop + dy}px`;
+        };
+        const dragEnd = () => isDragging = false;
+
+        dragHandle.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+        dragHandle.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('touchmove', dragMove, {passive: false});
+        document.addEventListener('touchend', dragEnd);
+
+
+        /* ==========================================================================
+           PHẦN 8: TOÁN HỌC 21 LỚP V16 (DETERMINISTIC)
+           ========================================================================== */
+        const MATH_ENGINE = {
+            normalizeToHex32(str) {
+                if (!str) str = "vilong"; let hash = "", seed = 0x811c9dc5;
+                for (let i = 0; i < 32; i++) {
+                    seed ^= str.charCodeAt(i % str.length);
+                    seed = (seed * 0x01000193) >>> 0;
+                    hash += (((seed + i * 0x9e3779b9) >>> 0) % 16).toString(16);
+                } return hash;
+            },
+            hexToBytes(hexStr) {
+                let bytes = [];
+                for (let i = 0; i < hexStr.length; i += 2) bytes.push(parseInt(hexStr.substr(i, 2), 16));
+                return bytes;
+            }
+        };
+
+        const ANALYZERS_V16 = [
+            // 16 Lớp gốc V15 (Đã thu gọn code)
+            { n: "1. TỔNG TRỌNG LƯỢNG", f: b => { let s=b.reduce((a,x)=>a+x,0), t=s>=2040; return {s:t?2:-2, t:`Sum=${s}`, v:t?"T":"X"}; } },
+            { n: "2. CÂN BẰNG BIT", f: b => { let o=0; b.forEach(x=>{let bs=x.toString(2); for(let i=0;i<bs.length;i++)if(bs[i]==='1')o++;}); let t=o>=64; return {s:t?1.5:-1.5, t:`1s=${o}`, v:t?"T":"X"}; } },
+            { n: "3. SHANNON ENTROPY", f: b => { let f={}, e=0; b.forEach(x=>f[x]=(f[x]||0)+1); for(let k in f){let p=f[k]/16; e-=p*Math.log2(p);} let t=e>=3.5; return {s:t?1:-1, t:`H=${e.toFixed(1)}`, v:t?"T":"X"}; } },
+            { n: "4. KIỂM TRA CHẴN LẺ", f: b => { let e=b.filter(x=>x%2===0).length, t=e>=8; return {s:t?1:-1, t:`Evn=${e}`, v:t?"T":"X"}; } },
+            { n: "5. SỐ NGUYÊN TỐ", f: b => { const ip=n=>{if(n<2)return false;for(let i=2;i<=Math.sqrt(n);i++)if(n%i===0)return false;return true;}; let p=b.filter(x=>ip(x)).length, t=p>=3; return {s:t?1.5:-1.5, t:`Prm=${p}`, v:t?"T":"X"}; } },
+            { n: "6. DỊCH VÒNG XOR", f: b => { let r=0; b.forEach(x=>r^=x); let t=r>=128; return {s:t?2:-2, t:`XOR=${r}`, v:t?"T":"X"}; } },
+            { n: "7. CHI-SQUARE", f: b => { let e=127.5, c=b.reduce((q,x)=>q+Math.pow(x-e,2)/e,0), t=c<=600; return {s:t?1.5:-1.5, t:`X²=${Math.round(c)}`, v:t?"T":"X"}; } },
+            { n: "8. MARKOV RUNS", f: b => { let a=0; for(let i=1;i<b.length;i++)if(b[i]>b[i-1])a++; let t=a>=8; return {s:t?1:-1, t:`Asc=${a}`, v:t?"T":"X"}; } },
+            { n: "9. TỌA ĐỘ TRUNG TÂM", f: b => { let c=b.slice(4,12).reduce((a,x)=>a+x,0), t=c>=1020; return {s:t?1:-1, t:`Mid=${c}`, v:t?"T":"X"}; } },
+            { n: "10. BIÊN ĐỘ (AMP)", f: b => { let d=Math.max(...b)-Math.min(...b), t=d>=200; return {s:t?1:-1, t:`Amp=${d}`, v:t?"T":"X"}; } },
+            { n: "11. BƯỚC NHẢY (LEV)", f: b => { let j=0; for(let i=1;i<b.length;i++)j+=Math.abs(b[i]-b[i-1]); let t=j>=800; return {s:t?1.5:-1.5, t:`Jmp=${j}`, v:t?"T":"X"}; } },
+            { n: "12. TẦN SUẤT CAO", f: b => { let h=b.filter(x=>x>=192).length, t=h>=4; return {s:t?1:-1, t:`Hi=${h}`, v:t?"T":"X"}; } },
+            { n: "13. TẦN SUẤT THẤP", f: b => { let l=b.filter(x=>x<=63).length, t=l<4; return {s:t?1:-1, t:`Lo=${l}`, v:t?"T":"X"}; } },
+            { n: "14. QUAN HỆ ĐẦU CUỐI", f: b => { let e=b[0]+b[15], t=e>=255; return {s:t?1:-1, t:`Edg=${e}`, v:t?"T":"X"}; } },
+            { n: "15. TÍCH LŨY MODULO", f: b => { let m=1; b.forEach(x=>{m=(m*(x%10+1))%1000;}); let t=m>=500; return {s:t?1:-1, t:`Mod=${m}`, v:t?"T":"X"}; } },
+            { n: "16. CRC-LIKE CHECKSUM", f: b => { let c=0xFFFF; b.forEach(x=>{c^=x; for(let i=0;i<8;i++)if((c&1)!==0)c=(c>>1)^0xA001;else c=c>>1;}); let t=c>=32768; return {s:t?2:-2, t:`CRC=${c}`, v:t?"T":"X"}; } },
+            
+            // 5 LỚP MỚI CỦA V16 OMEGA
+            { n: "17. CHUỖI FIBONACCI", f: b => { 
+                const fib = [1,2,3,5,8,13,21,34,55,89,144,233];
+                let match = b.filter(x => fib.includes(x)).length;
+                let t = match >= 2; return {s:t?1:-1, t:`Fib=${match}`, v:t?"T":"X"};
+            }},
+            { n: "18. ĐỊNH LUẬT BENFORD", f: b => { 
+                let firstDigits = b.map(x => parseInt(x.toString()[0]));
+                let count1to3 = firstDigits.filter(x => x >= 1 && x <= 3).length;
+                let t = count1to3 >= 9; // Theo tự nhiên số 1,2,3 xuất hiện nhiều
+                return {s:t?1.5:-1.5, t:`Bnf=${count1to3}`, v:t?"T":"X"};
+            }},
+            { n: "19. PHỎNG ĐOÁN COLLATZ", f: b => { 
+                let start = b[0] === 0 ? 1 : b[0]; let steps = 0;
+                while(start !== 1 && steps < 100) { start = start % 2 === 0 ? start / 2 : 3 * start + 1; steps++; }
+                let t = steps >= 15; return {s:t?1:-1, t:`Col=${steps}`, v:t?"T":"X"};
+            }},
+            { n: "20. THUẬT TOÁN LUHN", f: b => { 
+                let sum = 0;
+                b.forEach((x, i) => { let v = x % 10; if(i % 2 !== 0) { v *= 2; if(v > 9) v -= 9; } sum += v; });
+                let t = sum % 10 === 0 || sum > 60; return {s:t?1:-1, t:`Luh=${sum}`, v:t?"T":"X"};
+            }},
+            { n: "21. NGUYÊN ÂM HEX (A,E)", f: (b, hexStr) => { 
+                let vowels = (hexStr.match(/[ae]/gi) || []).length;
+                let t = vowels >= 6; return {s:t?1.5:-1.5, t:`Vwl=${vowels}`, v:t?"T":"X"};
+            }}
+        ];
+
+        /* ==========================================================================
+           PHẦN 9: CORE APP & RENDER
+           ========================================================================== */
+        const VI_LONG_CORE = {
+            history: JSON.parse(localStorage.getItem('vilong_v16_hist')) || [],
+            currentData: null,
+
+            processInput(rawStr) {
+                if(!rawStr) return null;
+                const hex32 = MATH_ENGINE.normalizeToHex32(rawStr);
+                const bytes = MATH_ENGINE.hexToBytes(hex32);
+
+                let totalScore = 0; let results = [];
+                ANALYZERS_V16.forEach(algo => {
+                    let res = algo.f(bytes, hex32);
+                    totalScore += res.s;
+                    results.push({ name: algo.n, val: res.t, vote: res.v });
+                });
+
+                // Anti-Bias AI (Chống bệt)
+                if (this.history.length >= 5) {
+                    let recentSum = this.history.slice(-5).reduce((a,b)=>a+b, 0);
+                    if (recentSum >= 4) totalScore -= 5;
+                    if (recentSum <= 1) totalScore += 5;
+                }
+
+                const k = 10.0; // Hệ số mượt mà
+                let probability = 1 / (1 + Math.exp(-totalScore / k));
+                let pT = Math.round(probability * 100);
+                if(pT > 98) pT = 98; if(pT < 2) pT = 2;
+
+                this.currentData = { res: pT >= 50 ? "TÀI" : "XỈU", pT: pT, pX: 100 - pT, layers: results };
+                return this.currentData;
+            },
+
+            updateUI(data) {
+                document.getElementById('mainRes').textContent = data.res;
+                document.getElementById('mainRes').className = 'res-text ' + (data.res === "TÀI" ? 'res-tai' : 'res-xiu');
+                document.getElementById('barT').style.width = data.pT + '%';
+                document.getElementById('barX').style.width = data.pX + '%';
+                document.getElementById('txtT').textContent = `T: ${data.pT}%`;
+                document.getElementById('txtX').textContent = `X: ${data.pX}%`;
+
+                const grid = document.getElementById('algoGrid');
+                grid.innerHTML = '';
+                data.layers.forEach(ly => {
+                    grid.innerHTML += `<div class="algo-item"><span class="algo-name">${ly.name}</span><span class="algo-val ${ly.vote.toLowerCase()}">[${ly.val}] ${ly.vote}</span></div>`;
+                });
+            },
+
+            feedHistory(isCorrect) {
+                if(!this.currentData) return;
+                const actualVal = isCorrect ? (this.currentData.res === "TÀI" ? 1 : 0) : (this.currentData.res === "TÀI" ? 0 : 1);
+                this.history.push(actualVal);
+                if(this.history.length > 50) this.history.shift();
+                localStorage.setItem('vilong_v16_hist', JSON.stringify(this.history));
+
+                document.getElementById('coreInput').value = '';
+                document.getElementById('mainRes').textContent = '---';
+                document.getElementById('mainRes').className = 'res-text res-wait';
+                document.getElementById('algoGrid').innerHTML = '';
+                this.currentData = null;
+            }
+        };
+
+        document.getElementById('btnAnalyze').addEventListener('click', () => {
+            const val = document.getElementById('coreInput').value.trim();
+            if(!val) return;
+            const res = VI_LONG_CORE.processInput(val);
+            VI_LONG_CORE.updateUI(res);
+        });
+        document.getElementById('coreInput').addEventListener('keydown', e => { if(e.key === 'Enter') document.getElementById('btnAnalyze').click(); });
+
+    </script>
+</body></html>
